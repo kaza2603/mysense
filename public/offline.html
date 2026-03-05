@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IstimewaKu - Offline</title>
+    <style>
+      body {
+        font-family: "Quicksand", system-ui, -apple-system, sans-serif;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        min-height: 100vh;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(to bottom right, #fff7ed, #ffedd5);
+        color: #1f2937;
+      }
+      .container {
+        text-align: center;
+        padding: 2rem;
+        max-width: 500px;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #f59e0b;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+      }
+      p {
+        color: #4b5563;
+        line-height: 1.6;
+      }
+      .btn {
+        display: inline-block;
+        background: #f59e0b;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        margin-top: 1rem;
+        font-weight: 600;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation-duration: 0.01ms !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Anda Sedang Offline</h1>
+      <p>
+        Maaf, anda tidak dapat mengakses halaman ini kerana anda sedang offline.
+        Sila periksa sambungan internet anda dan cuba lagi.
+      </p>
+      <a href="/" class="btn">Cuba Lagi</a>
+    </div>
+  </body>
+</html>
