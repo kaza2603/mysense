@@ -77,6 +77,7 @@ export const useAuthStore = defineStore("auth", () => {
             });
             if (response.data && response.data.user) {
                 isParentAuthenticated.value = true;
+                response.data.user.token = "sanctum-cookie-auth";
                 currentUser.value = response.data.user;
                 localStorage.setItem("isParentAuthenticated", "true");
                 localStorage.setItem(
@@ -107,6 +108,7 @@ export const useAuthStore = defineStore("auth", () => {
             });
             if (response.data && response.data.student) {
                 isStudentAuthenticated.value = true;
+                response.data.student.token = "sanctum-cookie-auth";
                 currentStudent.value = response.data.student;
                 localStorage.setItem("isStudentAuthenticated", "true");
                 localStorage.setItem(
@@ -137,6 +139,7 @@ export const useAuthStore = defineStore("auth", () => {
             });
             if (response.data && response.data.teacher) {
                 isTeacherAuthenticated.value = true;
+                response.data.teacher.token = "sanctum-cookie-auth";
                 currentTeacher.value = response.data.teacher;
                 localStorage.setItem("isTeacherAuthenticated", "true");
                 localStorage.setItem(

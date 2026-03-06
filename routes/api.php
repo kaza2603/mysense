@@ -7,36 +7,47 @@ use App\Http\Controllers\Api\AuthController;
 Route::post('/parents/login', [AuthController::class, 'loginParent']);
 Route::post('/students/login', [AuthController::class, 'loginStudent']);
 Route::post('/teachers/login', [AuthController::class, 'loginTeacher']);
+// Everyone should be able to trigger a logout, so we leave it public
+Route::post('/logout', [AuthController::class, 'logout']);
+
 // Fetching Schools and Classes
 Route::get('/schools', [App\Http\Controllers\Api\SchoolController::class, 'index']);
 Route::get('/schools/{id}', [App\Http\Controllers\Api\SchoolController::class, 'getSchool']);
 Route::get('/classes/school/{schoolId}', [App\Http\Controllers\Api\SchoolController::class, 'getClassesBySchool']);
 Route::get('/classes/{id}', [App\Http\Controllers\Api\SchoolController::class, 'getClass']);
-// Everyone should be able to trigger a logout, so we leave it public
-Route::post('/logout', [AuthController::class, 'logout']);
+
+// NEW: Fetching Quizzes
+Route::get('/quizzes', [App\Http\Controllers\Api\QuizController::class, 'index']);
+Route::get('/quizzes/{id}', [App\Http\Controllers\Api\QuizController::class, 'show']);
+
 
 
 // --- PROTECTED ROUTES (Must be logged in) ---
 
-// 1. PARENT VIP ROOM (Only logged-in parents allowed in here!)
+// 1. PARENT VIP ROOM
 Route::middleware('auth:parent')->group(function () {
-
-    // Fetching the children
     Route::get('/students/parent/{email}', [AuthController::class, 'getStudentsByParent']);
+});
 
-    // --- NEW: Student Performance Routes ---
+// 2. SHARED VIP ROOM (Parents, Students, AND Teachers)
+Route::middleware('auth:parent,student,teacher')->group(function () {
     Route::get('/student-performance/analytics/{studentId}', [App\Http\Controllers\Api\StudentPerformanceController::class, 'getAnalytics']);
     Route::get('/student-performance/all-attempts/{studentId}', [App\Http\Controllers\Api\StudentPerformanceController::class, 'getAllAttempts']);
     Route::get('/student-performance/recent-activity/{studentId}', [App\Http\Controllers\Api\StudentPerformanceController::class, 'getRecentActivity']);
 
+    // --- NEW: View Videos ---
+    Route::get('/videos', [App\Http\Controllers\Api\VideoController::class, 'index']);
 });
 
-// 2. STUDENT VIP ROOM
+// 3. STUDENT VIP ROOM
 Route::middleware('auth:student')->group(function () {
-    // Future student routes will go here!
+    Route::post('/quiz-attempts', [App\Http\Controllers\Api\QuizAttemptController::class, 'store']);
 });
 
-// 3. TEACHER VIP ROOM
+// 4. TEACHER VIP ROOM
 Route::middleware('auth:teacher')->group(function () {
-    // Future teacher routes will go here!
+    // --- NEW: Manage Videos ---
+    Route::post('/videos', [App\Http\Controllers\Api\VideoController::class, 'store']);
+    Route::put('/videos/{id}', [App\Http\Controllers\Api\VideoController::class, 'update']);
+    Route::delete('/videos/{id}', [App\Http\Controllers\Api\VideoController::class, 'destroy']);
 });
