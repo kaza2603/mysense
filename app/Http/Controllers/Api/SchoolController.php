@@ -5,54 +5,58 @@ use App\Http\Controllers\Controller;
 use App\Models\School;
 use App\Models\SchoolClass;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class SchoolController extends Controller
 {
-    // 1. Fetch ALL schools
-    public function index()
-    {
-        $schools = School::all();
-        // Vue expects a raw array: response.data
-        return response()->json($schools);
-    }
+    public function index() { return response()->json(School::all()); }
 
-    // 2. Fetch a specific school by ID (and include its classes)
-    public function getSchool($id)
-    {
+    public function getSchool($id) {
         $school = School::find($id);
-
-        if (!$school) {
-            return response()->json(['error' => 'School not found'], 404);
-        }
-
-        // The Vue app looks for schoolData.classes, so we grab the classes for this school
-        $classes = SchoolClass::where('school_id', $id)->get();
-
-        // We append the classes array directly to the school object before returning it
-        $school->classes = $classes;
-
-        // Vue expects the raw object: response.data.school_id
+        if (!$school) return response()->json(['error' => 'School not found'], 404);
+        $school->classes = SchoolClass::where('school_id', $id)->get();
         return response()->json($school);
     }
 
-    // 3. Fetch ALL classes for a specific school
-    public function getClassesBySchool($schoolId)
-    {
-        $classes = SchoolClass::where('school_id', $schoolId)->get();
-        // Vue expects a raw array: response.data
-        return response()->json($classes);
+    public function getClassesBySchool($schoolId) {
+        return response()->json(SchoolClass::where('school_id', $schoolId)->get());
     }
 
-    // 4. Fetch a specific class by ID
-    public function getClass($id)
-    {
+    public function getClass($id) {
         $class = SchoolClass::find($id);
+        if (!$class) return response()->json(['error' => 'Class not found'], 404);
+        return response()->json($class);
+    }
 
-        if (!$class) {
-            return response()->json(['error' => 'Class not found'], 404);
+    // --- NEW: From your old Node.js schoolController.js ---
+    public function registerSchool(Request $request) {
+        $school = new School();
+        $school->school_id = Str::uuid()->toString();
+        $school->name = $request->name;
+        $school->address = $request->address;
+        $school->phone = $request->phone;
+        $school->created_at = now();
+        $school->save();
+
+        $createdClasses = [];
+        foreach ($request->classes as $className) {
+            $class = new SchoolClass();
+            $class->class_id = Str::uuid()->toString();
+            $class->class_name = $className;
+            $class->school_id = $school->school_id;
+            $class->created_at = now();
+            $class->save();
+            $createdClasses[] = $class;
         }
 
-        // Vue expects the raw object: response.data.class_id
-        return response()->json($class);
+        return response()->json(['school' => $school, 'classes' => $createdClasses, 'success' => true]);
+    }
+
+    public function updateSchool(Request $request, $id) {
+        $school = School::find($id);
+        if ($school) {
+            $school->update($request->only(['name', 'address', 'phone']));
+        }
+        return response()->json(['school' => $school, 'success' => true]);
     }
 }
