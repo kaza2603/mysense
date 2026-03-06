@@ -14,3 +14,5 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanc
 Route::get('/ping', function () {
     return response()->json(['message' => 'Laravel API is alive and kicking!']);
 });
+// Fetch students belonging to a specific parent email
+Route::get('/students/parent/{email}', [AuthController::class, 'getStudentsByParent']);
