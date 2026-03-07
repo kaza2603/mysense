@@ -11,7 +11,24 @@ use Illuminate\Support\Str;
 class StudentController extends Controller
 {
     public function index() {
-        return response()->json(['students' => Student::all()]);
+        // Kita gunakan 'AS' untuk menukar nama lajur pangkalan data
+        // supaya sepadan tepat dengan apa yang Vue Frontend (mapStudentToFrontend) cari
+        $students = Student::leftJoin('schools', 'students.school_id', '=', 'schools.school_id')
+            ->leftJoin('classes', 'students.class_id', '=', 'classes.class_id')
+            ->select(
+                'students.user_id as id',
+                'students.student_username as username',
+                'students.student_name as name',
+                'students.student_email as email',
+                'students.parent_email as parentEmail',
+                'schools.name as school',
+                'students.school_id as schoolId',
+                'classes.class_name as class',
+                'students.class_id as classId'
+            )
+            ->get();
+
+        return response()->json(['students' => $students]);
     }
 
     public function getStudentsByTeacherClass() {

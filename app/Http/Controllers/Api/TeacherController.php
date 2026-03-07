@@ -10,7 +10,13 @@ use Illuminate\Support\Str;
 class TeacherController extends Controller
 {
     public function index() {
-        return response()->json(['teachers' => Teacher::all()]);
+        // Same here, we join the tables for the frontend
+        $teachers = Teacher::leftJoin('schools', 'teachers.school_id', '=', 'schools.school_id')
+            ->leftJoin('classes', 'teachers.class_id', '=', 'classes.class_id')
+            ->select('teachers.*', 'schools.name as school_name', 'classes.class_name as class_name')
+            ->get();
+
+        return response()->json(['teachers' => $teachers]);
     }
 
     public function store(Request $request) {

@@ -23,6 +23,12 @@ Route::get('/schools/{id}', [SchoolController::class, 'getSchool']);
 Route::get('/classes/school/{schoolId}', [SchoolController::class, 'getClassesBySchool']);
 Route::get('/classes/{id}', [SchoolController::class, 'getClass']);
 
+// --- ADD THESE 4 LINES ---
+Route::get('/classes', [SchoolController::class, 'getAllClasses']);
+Route::post('/classes', [SchoolController::class, 'createClass']);
+Route::put('/classes/{id}', [SchoolController::class, 'updateClass']);
+Route::delete('/classes/{id}', [SchoolController::class, 'deleteClass']);
+
 Route::get('/quizzes', [QuizController::class, 'index']);
 Route::get('/quizzes/{id}', [QuizController::class, 'show']);
 

@@ -8,28 +8,31 @@ use Illuminate\Support\Facades\Auth;
 class AuthController extends Controller
 {
     public function loginParent(Request $request)
-        {
-            $credentials = [
-                'parent_email' => $request->email,
-                'password' => $request->password
-            ];
+    {
+        $credentials = [
+            'parent_email' => $request->email,
+            'password' => $request->password
+        ];
 
-            if (Auth::guard('parent')->attempt($credentials)) {
-                $request->session()->regenerate();
+        if (Auth::guard('parent')->attempt($credentials)) {
+            $request->session()->regenerate();
+            $parent = Auth::guard('parent')->user();
 
-                // Get the logged-in parent
-                $parent = Auth::guard('parent')->user();
-
-                // MAGIC ALERT: This automatically fetches all associated students!
-                $parent->load('students');
-
-                return response()->json([
-                    'user' => $parent
-                ]);
-            }
-
-            return response()->json(['message' => 'E-mel atau kata laluan tidak sah'], 401);
+            // MAPPING: We translate the database columns into the exact
+            // format your Vue frontend expects (email instead of parent_email)
+            return response()->json([
+                'user' => [
+                    'id' => $parent->user_id,
+                    'name' => $parent->parent_name,
+                    'email' => $parent->parent_email,
+                    'phone' => $parent->parent_phone,
+                    'address' => $parent->parent_address,
+                ]
+            ]);
         }
+
+        return response()->json(['message' => 'E-mel atau kata laluan tidak sah'], 401);
+    }
 
     public function loginStudent(Request $request)
     {
@@ -96,15 +99,25 @@ class AuthController extends Controller
         return response()->json(['message' => 'Berjaya log keluar']);
     }
     public function getStudentsByParent($email)
-    {
-        // 1. Fetch all students where the parent_email matches the requested email
-        // We use the Student model we created earlier
-        $students = \App\Models\Student::where('parent_email', $email)->get();
+        {
+            // We use the same 'AS' aliases here so the parent dashboard
+            // gets the text names for schools and classes!
+            $students = \App\Models\Student::where('students.parent_email', $email)
+                ->leftJoin('schools', 'students.school_id', '=', 'schools.school_id')
+                ->leftJoin('classes', 'students.class_id', '=', 'classes.class_id')
+                ->select(
+                    'students.user_id as id',
+                    'students.student_username as username',
+                    'students.student_name as name',
+                    'students.student_email as email',
+                    'students.parent_email as parentEmail',
+                    'schools.name as school',
+                    'students.school_id as schoolId',
+                    'classes.class_name as class',
+                    'students.class_id as classId'
+                )
+                ->get();
 
-        // 2. Return the data exactly how your Vue frontend expects it:
-        // response.data.students
-        return response()->json([
-            'students' => $students
-        ]);
+            return response()->json(['students' => $students]);
+        }
     }
-}

@@ -59,4 +59,38 @@ class SchoolController extends Controller
         }
         return response()->json(['school' => $school, 'success' => true]);
     }
+    // --- NEW: Class Management Endpoints ---
+
+    public function getAllClasses() {
+        return response()->json(SchoolClass::all());
+    }
+
+    public function createClass(Request $request) {
+        $class = new SchoolClass();
+        $class->class_id = Str::uuid()->toString();
+        $class->class_name = $request->class_name;
+        $class->school_id = $request->school_id;
+        $class->created_at = now();
+        $class->save();
+
+        return response()->json($class, 201);
+    }
+
+    public function updateClass(Request $request, $id) {
+        $class = SchoolClass::find($id);
+        if ($class) {
+            $class->update([
+                'class_name' => $request->class_name,
+                'school_id' => $request->school_id
+            ]);
+        }
+        return response()->json($class);
+    }
+
+    public function deleteClass($id) {
+        $class = SchoolClass::find($id);
+        if ($class) $class->delete();
+
+        return response()->json(['message' => 'Class deleted successfully']);
+    }
 }
