@@ -30,38 +30,36 @@ export const useAuthStore = defineStore("auth", () => {
         await api.get("/sanctum/csrf-cookie");
     };
 
-    // --- ADMIN LOGIN (Keeping your bypass logic for now) ---
+    // --- REAL ADMIN LOGIN ---
     const login = async (email, password) => {
         authError.value = "";
-        const allowedAdminEmails = [
-            "irfpann@student.usm.my",
-            "admin@test.com",
-            "admin@admin.com",
-            "test@test.com",
-        ];
-
-        if (!allowedAdminEmails.includes(email)) {
-            authError.value = "E-mel atau kata laluan tidak sah";
-            return false;
-        }
-
         try {
-            isAuthenticated.value = true;
-            localStorage.setItem("isAuthenticated", "true");
+            await initSanctum();
+            const response = await api.post("/admin/login", {
+                email,
+                password,
+            });
 
-            const adminUser = {
-                email: email,
-                role: "admin",
-                authenticated_at: new Date().toISOString(),
-            };
-            localStorage.setItem("adminUser", JSON.stringify(adminUser));
+            if (response.data && response.data.user) {
+                isAuthenticated.value = true;
 
-            authError.value = "";
-            console.log("Admin logged in successfully (BYPASSED):", email);
-            return true;
+                // The dummy token trick so your old frontend doesn't panic
+                response.data.user.token = "sanctum-cookie-auth";
+
+                localStorage.setItem("isAuthenticated", "true");
+                localStorage.setItem(
+                    "adminUser",
+                    JSON.stringify(response.data.user),
+                );
+
+                return true;
+            }
+            throw new Error("Invalid response");
         } catch (error) {
             console.error("Admin login error:", error);
-            authError.value = "Ralat semasa log masuk. Sila cuba lagi.";
+            authError.value =
+                error.response?.data?.message ||
+                "E-mel atau kata laluan tidak sah";
             return false;
         }
     };

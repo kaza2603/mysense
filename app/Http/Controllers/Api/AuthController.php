@@ -66,6 +66,22 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'E-mel atau kata laluan tidak sah'], 401);
     }
+    public function loginAdmin(Request $request)
+    {
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::guard('admin')->attempt($credentials)) {
+            $request->session()->regenerate();
+            $admin = Auth::guard('admin')->user();
+
+            return response()->json([
+                'user' => $admin,
+                'role' => 'admin'
+            ]);
+        }
+
+        return response()->json(['message' => 'E-mel atau kata laluan tidak sah'], 401);
+    }
 
     public function logout(Request $request)
     {

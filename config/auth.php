@@ -52,6 +52,8 @@ return [
                 'driver' => 'session',
                 'provider' => 'teachers',
             ],
+            // ADD THIS:
+        'admin' => ['driver' => 'session', 'provider' => 'admins'],
         ],
 
     /*
@@ -88,6 +90,8 @@ return [
                 'driver' => 'eloquent',
                 'model' => App\Models\Teacher::class,
             ],
+            // ADD THIS:
+        'admins' => ['driver' => 'eloquent', 'model' => App\Models\Admin::class],
         ],
 
     /*

@@ -16,6 +16,7 @@ Route::post('/parents/login', [AuthController::class, 'loginParent']);
 Route::post('/students/login', [AuthController::class, 'loginStudent']);
 Route::post('/teachers/login', [AuthController::class, 'loginTeacher']);
 Route::post('/logout', [AuthController::class, 'logout']);
+Route::post('/admin/login', [AuthController::class, 'loginAdmin']); // <-- Add this!
 
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/schools/{id}', [SchoolController::class, 'getSchool']);
@@ -74,4 +75,9 @@ Route::middleware('auth:teacher')->group(function () {
     Route::put('/videos/{id}', [VideoController::class, 'update']);
     Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
     Route::get('/students/teacher-class', [StudentController::class, 'getStudentsByTeacherClass']);
+});
+
+// 5. ADMIN VIP ROOM
+Route::middleware('auth:admin')->group(function () {
+    // We can move your generic CRUD routes (Schools, Teachers, etc.) in here later!
 });
