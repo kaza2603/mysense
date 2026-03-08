@@ -35,23 +35,35 @@ class AuthController extends Controller
     }
 
     public function loginStudent(Request $request)
-    {
-        // Students might log in with student_email or student_username.
-        // Based on your frontend code, let's assume email for now.
-        $credentials = [
-            'student_email' => $request->email,
-            'password' => $request->password
-        ];
+        {
+            // Smart Check: Did the student type an email address or a username?
+            $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'student_email' : 'student_username';
 
-        if (Auth::guard('student')->attempt($credentials)) {
-            $request->session()->regenerate();
-            return response()->json([
-                'student' => Auth::guard('student')->user()
-            ]);
+            $credentials = [
+                $loginField => $request->email,
+                'password' => $request->password
+            ];
+
+            if (Auth::guard('student')->attempt($credentials)) {
+                $request->session()->regenerate();
+                $student = Auth::guard('student')->user();
+
+                // Translate the DB columns to match the Vue Frontend
+                return response()->json([
+                    'student' => [
+                        'id' => $student->user_id,
+                        'username' => $student->student_username,
+                        'name' => $student->student_name,
+                        'email' => $student->student_email,
+                        'parentEmail' => $student->parent_email,
+                        'schoolId' => $student->school_id,
+                        'classId' => $student->class_id,
+                    ]
+                ]);
+            }
+
+            return response()->json(['message' => 'E-mel/Username atau kata laluan tidak sah'], 401);
         }
-
-        return response()->json(['message' => 'E-mel atau kata laluan tidak sah'], 401);
-    }
 
     public function loginTeacher(Request $request)
     {

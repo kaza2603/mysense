@@ -70,10 +70,42 @@ class StudentController extends Controller
     }
 
     public function getProfile($id) {
-        return response()->json(['student' => Student::find($id)]);
-    }
+            $student = Student::leftJoin('schools', 'students.school_id', '=', 'schools.school_id')
+                ->leftJoin('classes', 'students.class_id', '=', 'classes.class_id')
+                ->select(
+                    'students.user_id as id',
+                    'students.student_username as username',
+                    'students.student_name as name',
+                    'students.student_email as email',
+                    'students.parent_email as parentEmail',
+                    'schools.name as school',
+                    'students.school_id as schoolId',
+                    'classes.class_name as class',
+                    'students.class_id as classId'
+                )
+                ->where('students.user_id', $id)
+                ->first();
+
+            return response()->json(['student' => $student]);
+        }
 
     public function getProfileByUsername($username) {
-        return response()->json(['student' => Student::where('student_username', $username)->first()]);
+        $student = Student::leftJoin('schools', 'students.school_id', '=', 'schools.school_id')
+            ->leftJoin('classes', 'students.class_id', '=', 'classes.class_id')
+            ->select(
+                'students.user_id as id',
+                'students.student_username as username',
+                'students.student_name as name',
+                'students.student_email as email',
+                'students.parent_email as parentEmail',
+                'schools.name as school',
+                'students.school_id as schoolId',
+                'classes.class_name as class',
+                'students.class_id as classId'
+            )
+            ->where('students.student_username', $username)
+            ->first();
+
+        return response()->json(['student' => $student]);
     }
 }
