@@ -70,6 +70,9 @@ class StudentController extends Controller
     }
 
     public function getProfile($id) {
+            // SMART CHECK: Is the frontend passing a UUID or a Username?
+            $field = \Illuminate\Support\Str::isUuid($id) ? 'students.user_id' : 'students.student_username';
+
             $student = Student::leftJoin('schools', 'students.school_id', '=', 'schools.school_id')
                 ->leftJoin('classes', 'students.class_id', '=', 'classes.class_id')
                 ->select(
@@ -83,8 +86,12 @@ class StudentController extends Controller
                     'classes.class_name as class',
                     'students.class_id as classId'
                 )
-                ->where('students.user_id', $id)
+                ->where($field, $id)
                 ->first();
+
+            if (!$student) {
+                return response()->json(['message' => 'Student not found'], 404);
+            }
 
             return response()->json(['student' => $student]);
         }

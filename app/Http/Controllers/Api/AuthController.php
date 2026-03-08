@@ -34,36 +34,46 @@ class AuthController extends Controller
         return response()->json(['message' => 'E-mel atau kata laluan tidak sah'], 401);
     }
 
-    public function loginStudent(Request $request)
-        {
-            // Smart Check: Did the student type an email address or a username?
-            $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'student_email' : 'student_username';
+   public function loginStudent(Request $request)
+    {
+        // Smart Check: Did the student type an email address or a username?
+        $loginField = filter_var($request->email, FILTER_VALIDATE_EMAIL) ? 'student_email' : 'student_username';
 
-            $credentials = [
-                $loginField => $request->email,
-                'password' => $request->password
-            ];
+        $credentials = [
+            $loginField => $request->email,
+            'password' => $request->password
+        ];
 
-            if (Auth::guard('student')->attempt($credentials)) {
-                $request->session()->regenerate();
-                $student = Auth::guard('student')->user();
+        if (Auth::guard('student')->attempt($credentials)) {
+            $request->session()->regenerate();
+            $student = Auth::guard('student')->user();
 
-                // Translate the DB columns to match the Vue Frontend
-                return response()->json([
-                    'student' => [
-                        'id' => $student->user_id,
-                        'username' => $student->student_username,
-                        'name' => $student->student_name,
-                        'email' => $student->student_email,
-                        'parentEmail' => $student->parent_email,
-                        'schoolId' => $student->school_id,
-                        'classId' => $student->class_id,
-                    ]
-                ]);
-            }
+            return response()->json([
+                'student' => [
+                    // We send BOTH the new mapped names AND the old database column names
+                    // This ensures complete compatibility with all your Vue files!
+                    'id' => $student->user_id,
+                    'user_id' => $student->user_id,
+                    'student_id' => $student->user_id,
 
-            return response()->json(['message' => 'E-mel/Username atau kata laluan tidak sah'], 401);
+                    'username' => $student->student_username,
+                    'student_username' => $student->student_username,
+
+                    'name' => $student->student_name,
+                    'student_name' => $student->student_name,
+
+                    'email' => $student->student_email,
+                    'student_email' => $student->student_email,
+
+                    'parentEmail' => $student->parent_email,
+                    'schoolId' => $student->school_id,
+                    'classId' => $student->class_id,
+                ]
+            ]);
         }
+
+        return response()->json(['message' => 'E-mel/Username atau kata laluan tidak sah'], 401);
+    }
 
     public function loginTeacher(Request $request)
     {
