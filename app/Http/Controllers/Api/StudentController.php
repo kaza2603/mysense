@@ -32,11 +32,28 @@ class StudentController extends Controller
     }
 
     public function getStudentsByTeacherClass() {
-        $teacher = Auth::guard('teacher')->user();
-        if (!$teacher) return response()->json(['message' => 'Guru tidak dikenalpasti'], 401);
+            $teacher = \Illuminate\Support\Facades\Auth::guard('teacher')->user();
+            if (!$teacher) return response()->json(['message' => 'Guru tidak dikenalpasti'], 401);
 
-        $students = Student::where('class_id', $teacher->class_id)->get();
-        return response()->json(['students' => $students]);
+            // We apply the exact same joins and 'AS' aliases here so the
+            // Teacher Dashboard gets the formatted 'id', 'name', and text labels!
+            $students = Student::where('students.class_id', $teacher->class_id)
+                ->leftJoin('schools', 'students.school_id', '=', 'schools.school_id')
+                ->leftJoin('classes', 'students.class_id', '=', 'classes.class_id')
+                ->select(
+                    'students.user_id as id',
+                    'students.student_username as username',
+                    'students.student_name as name',
+                    'students.student_email as email',
+                    'students.parent_email as parentEmail',
+                    'schools.name as school',
+                    'students.school_id as schoolId',
+                    'classes.class_name as class',
+                    'students.class_id as classId'
+                )
+                ->get();
+
+            return response()->json(['students' => $students]);
     }
 
     public function store(Request $request) {
