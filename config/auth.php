@@ -52,8 +52,10 @@ return [
                 'driver' => 'session',
                 'provider' => 'teachers',
             ],
-            // ADD THIS:
-        'admin' => ['driver' => 'session', 'provider' => 'admins'],
+            'admin' => [
+                'driver' => 'session',
+                'provider' => 'admins'
+            ],
         ],
 
     /*
