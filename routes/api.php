@@ -16,7 +16,7 @@ Route::post('/parents/login', [AuthController::class, 'loginParent']);
 Route::post('/students/login', [AuthController::class, 'loginStudent']);
 Route::post('/teachers/login', [AuthController::class, 'loginTeacher']);
 Route::post('/logout', [AuthController::class, 'logout']);
-Route::post('/admin/login', [AuthController::class, 'loginAdmin']); // <-- Add this!
+Route::post('/admin/login', [AuthController::class, 'loginAdmin']);
 
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/schools/{id}', [SchoolController::class, 'getSchool']);
@@ -61,12 +61,20 @@ Route::delete('/parents/{id}', [ParentController::class, 'destroy']);
 Route::middleware('auth:parent')->group(function () {
     Route::get('/students/parent/{email}', [AuthController::class, 'getStudentsByParent']);
 });
-
 // 2. SHARED VIP ROOM (Parents, Students, AND Teachers)
 Route::middleware('auth:parent,student,teacher')->group(function () {
-    Route::get('/student-performance/analytics/{studentId}', [StudentPerformanceController::class, 'getAnalytics']);
-    Route::get('/student-performance/all-attempts/{studentId}', [StudentPerformanceController::class, 'getAllAttempts']);
+    Route::get('/student-performance/analytics/{studentId}',       [StudentPerformanceController::class, 'getAnalytics']);
+    Route::get('/student-performance/all-attempts/{studentId}',    [StudentPerformanceController::class, 'getAllAttempts']);
     Route::get('/student-performance/recent-activity/{studentId}', [StudentPerformanceController::class, 'getRecentActivity']);
+
+    // ── ADD THESE NEW ROUTES ──
+    Route::get('/student-performance/summary/{studentId}',         [StudentPerformanceController::class, 'getPerformanceSummary']);
+    Route::get('/student-performance/progress/{studentId}',        [StudentPerformanceController::class, 'getProgressByUnit']);
+    Route::get('/student-performance/learning-style/{studentId}',  [StudentPerformanceController::class, 'getLearningStyleAnalysis']);
+    Route::get('/student-performance/weekly-activity/{studentId}', [StudentPerformanceController::class, 'getWeeklyActivity']);
+    Route::get('/student-performance/comparison/{studentId}',      [StudentPerformanceController::class, 'getPerformanceComparison']);
+    // ─────────────────────────
+
     Route::get('/videos', [VideoController::class, 'index']);
 });
 
